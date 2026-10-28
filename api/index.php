@@ -40,6 +40,8 @@ if (! getenv('APP_KEY')) {
 }
 
 putenv('VERCEL=1');
+putenv('APP_URL=https://rinahazarika-clothing.vercel.app');
+putenv('ASSET_URL=https://rinahazarika-clothing.vercel.app');
 putenv('APP_STORAGE=/tmp/storage');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 putenv('SESSION_DRIVER=cookie');
@@ -47,6 +49,10 @@ putenv('CACHE_STORE=array');
 putenv('LOG_CHANNEL=stderr');
 putenv('DB_CONNECTION=sqlite');
 putenv('DB_DATABASE='.$tmpDb);
+
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['SERVER_PORT'] = 443;
+$_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
 
 // Forward to standard Laravel public/index.php
 require __DIR__.'/../public/index.php';

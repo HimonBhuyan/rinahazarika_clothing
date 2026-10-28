@@ -32,7 +32,9 @@
   ],
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
+    "APP_URL": "https://rinahazarika-clothing.vercel.app",
+    "ASSET_URL": "https://rinahazarika-clothing.vercel.app",
     "APP_KEY": "base64:sVX3IR1qXlp9xeubpuiuVi8yxx/5KBUiPd/2UuSE44w=",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",

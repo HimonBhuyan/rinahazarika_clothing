@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Rina Hazarika | Authentic Assamese Mekhela Sador & Traditional Bihu Ornaments')</title>
     <meta name="description" content="@yield('meta_description', 'Discover pure Muga Silk, Mulberry Paat, Organic Eri Handlooms, and handcrafted 24K gold-washed Gamkharu, Jonbiri, and Dholbiri ornaments from Assam.')">
