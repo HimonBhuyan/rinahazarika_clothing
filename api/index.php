@@ -17,16 +17,36 @@ $storagePaths = [
 ];
 
 foreach ($storagePaths as $path) {
-    if (!is_dir($path)) {
+    if (! is_dir($path)) {
         @mkdir($path, 0755, true);
     }
 }
 
-// Set runtime environment paths for serverless
+// Copy seeded database to /tmp if using sqlite
+$tmpDb = '/tmp/database.sqlite';
+$sourceDb = __DIR__.'/../database/database.sqlite';
+
+if (! file_exists($tmpDb)) {
+    if (file_exists($sourceDb)) {
+        @copy($sourceDb, $tmpDb);
+    } else {
+        @touch($tmpDb);
+    }
+}
+
+// Fallback configuration if not set in Vercel UI
+if (! getenv('APP_KEY')) {
+    putenv('APP_KEY=base64:sVX3IR1qXlp9xeubpuiuVi8yxx/5KBUiPd/2UuSE44w=');
+}
+
+putenv('VERCEL=1');
 putenv('APP_STORAGE=/tmp/storage');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 putenv('SESSION_DRIVER=cookie');
+putenv('CACHE_STORE=array');
 putenv('LOG_CHANNEL=stderr');
+putenv('DB_CONNECTION=sqlite');
+putenv('DB_DATABASE='.$tmpDb);
 
 // Forward to standard Laravel public/index.php
-require __DIR__ . '/../public/index.php';
+require __DIR__.'/../public/index.php';
