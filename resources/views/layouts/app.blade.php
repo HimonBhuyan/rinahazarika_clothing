@@ -13,9 +13,47 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="alternate icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#FAF7F2] text-[#2D2825] flex flex-col min-h-screen antialiased selection:bg-[#B31B1B] selection:text-white">
+
+    <!-- Simple Assamese Heritage Page Loader -->
+    <div id="assamese-page-loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAF7F2]/95 backdrop-blur-md transition-opacity duration-300">
+        <div class="relative flex flex-col items-center">
+            <!-- Spinning Golden Ring with Jaapi Motif -->
+            <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#D4AF37] animate-spin" style="animation-duration: 5s;"></div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1E0C0E] border-2 border-[#D4AF37] p-2.5 shadow-xl flex items-center justify-center animate-pulse">
+                    <img src="{{ asset('images/motifs/jaapi.svg') }}" alt="Jaapi Loader" class="w-full h-full object-contain filter invert drop-shadow">
+                </div>
+            </div>
+
+            <!-- Assamese Heritage Calligraphy & Status -->
+            <div class="mt-4 text-center">
+                <div class="font-royal text-sm sm:text-base font-bold text-[#1E0C0E] tracking-widest uppercase">
+                    ৰীণা হাজৰিকা
+                </div>
+                <div class="text-[10px] sm:text-xs text-[#B31B1B] font-semibold mt-0.5 tracking-wider">
+                    AXOMIYA BASTRA &amp; ALONKAR
+                </div>
+                <div class="text-[11px] text-[#9B7616] mt-2 flex items-center justify-center gap-1.5 font-medium">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#D72638] animate-ping"></span>
+                    <span id="assamese-loader-text">অসমীয়া ঐতিহ্য ক্ৰাফ্টিং...</span>
+                </div>
+            </div>
+
+            <!-- Gamusa Strip Progress Bar -->
+            <div class="w-36 h-1.5 bg-[#E0D3C1] rounded-full overflow-hidden mt-3 shadow-inner">
+                <div class="h-full bg-gradient-to-r from-[#D4AF37] via-[#B31B1B] to-[#D4AF37] rounded-full animate-pulse"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Traditional Gamusa Ribbon Strip -->
     <div class="gamusa-ribbon"></div>
@@ -185,14 +223,14 @@
                                 <svg class="w-4 h-4 text-[#B31B1B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                                 <span>Wishlist</span>
                             </span>
-                            <span class="px-2 py-0.5 rounded-full bg-[#C59B27] text-white text-[10px] font-bold">{{ $globalWishlistCount ?? 0 }}</span>
+                            <span id="mobile-wishlist-count" class="px-2 py-0.5 rounded-full bg-[#C59B27] text-white text-[10px] font-bold">{{ $globalWishlistCount ?? 0 }}</span>
                         </a>
                         <a href="{{ route('cart.index') }}" class="py-2.5 px-3 rounded-xl hover:bg-[#F4ECE1] hover:text-[#B31B1B] flex items-center justify-between text-xs font-semibold text-[#4A3E38]">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-[#1E0C0E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                                 <span>Cart Bag</span>
                             </span>
-                            <span class="px-2 py-0.5 rounded-full bg-[#D72638] text-white text-[10px] font-bold">{{ $globalCartCount ?? 0 }} items</span>
+                            <span id="mobile-cart-count" class="px-2 py-0.5 rounded-full bg-[#D72638] text-white text-[10px] font-bold">{{ $globalCartCount ?? 0 }} items</span>
                         </a>
                     </div>
                 </div>
@@ -359,45 +397,143 @@
         if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
         if (overlay) overlay.addEventListener('click', closeDrawer);
 
-        // Toast Notification Function
-        window.showToast = function(message, type = 'success') {
+        // Global Assamese Loader Functions
+        window.showLoader = function(text = 'অসমীয়া ঐতিহ্য ক্ৰাফ্টিং...') {
+            const loader = document.getElementById('assamese-page-loader');
+            const txt = document.getElementById('assamese-loader-text');
+            if (txt) txt.textContent = text;
+            if (loader) {
+                loader.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        window.hideLoader = function() {
+            const loader = document.getElementById('assamese-page-loader');
+            if (loader) {
+                loader.classList.add('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        // Automatically hide loader when page finishes loading
+        window.addEventListener('load', function() {
+            setTimeout(window.hideLoader, 250);
+        });
+        // Safety fallback to guarantee page is interactive
+        setTimeout(window.hideLoader, 1800);
+
+        // Show loader on page transition links (except hash anchors, target="_blank", or javascript links)
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+            const href = link.getAttribute('href');
+            if (
+                href && 
+                !href.startsWith('#') && 
+                !href.startsWith('javascript:') && 
+                !href.startsWith('mailto:') && 
+                !href.startsWith('tel:') && 
+                link.target !== '_blank' &&
+                !e.ctrlKey && !e.metaKey && !e.shiftKey
+            ) {
+                // Only show for internal links
+                if (href.startsWith('/') || href.startsWith(window.location.origin)) {
+                    window.showLoader('Loading Traditional Collection...');
+                }
+            }
+        });
+
+        // Show loader on form submissions
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (!form.hasAttribute('data-no-loader')) {
+                window.showLoader('Processing Authentic Request...');
+            }
+        });
+
+        // Toast Notification Function with optional action link
+        window.showToast = function(message, type = 'success', actionLink = null, actionText = 'View Bag') {
             const container = document.getElementById('toast-container');
             if (!container) return;
 
             const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-4 opacity-0 ${
+            toast.className = `pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-4 opacity-0 border ${
                 type === 'success' 
-                    ? 'bg-[#1E0C0E] text-[#F5E5B4] border-l-4 border-[#D4AF37]' 
-                    : 'bg-[#B31B1B] text-white'
+                    ? 'bg-[#1E0C0E] text-[#F5E5B4] border-[#D4AF37]/50' 
+                    : 'bg-[#B31B1B] text-white border-red-800'
             }`;
             
+            let actionHtml = '';
+            if (actionLink) {
+                actionHtml = `<a href="${actionLink}" class="ml-2 px-2.5 py-1 bg-[#D4AF37] hover:bg-[#C59B27] text-[#1E0C0E] text-[11px] font-bold rounded-lg uppercase tracking-wider transition whitespace-nowrap">${actionText} &rarr;</a>`;
+            }
+
             toast.innerHTML = `
-                <svg class="w-5 h-5 flex-shrink-0 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>${message}</span>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <svg class="w-5 h-5 flex-shrink-0 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="truncate">${message}</span>
+                </div>
+                ${actionHtml}
             `;
 
             container.appendChild(toast);
 
-            // Animate in
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-y-4', 'opacity-0');
             });
 
-            // Remove after 3.5s
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 4000);
+        };
+
+        // Update All Wishlist Badges
+        window.updateWishlistBadges = function(count) {
+            const desktopBadge = document.getElementById('nav-wishlist-count');
+            if (desktopBadge) {
+                desktopBadge.textContent = count;
+                if (count > 0) {
+                    desktopBadge.classList.remove('hidden');
+                } else {
+                    desktopBadge.classList.add('hidden');
+                }
+            }
+            const mobileBadge = document.getElementById('mobile-wishlist-count');
+            if (mobileBadge) {
+                mobileBadge.textContent = count;
+            }
+        };
+
+        // Update All Cart Badges
+        window.updateCartBadges = function(count) {
+            const desktopBadge = document.getElementById('nav-cart-count');
+            if (desktopBadge) {
+                desktopBadge.textContent = count;
+            }
+            const mobileBadge = document.getElementById('mobile-cart-count');
+            if (mobileBadge) {
+                mobileBadge.textContent = count + (count === 1 ? ' item' : ' items');
+            }
         };
 
         // Quick AJAX Wishlist Toggle
         window.toggleWishlist = async function(productId, btnElement) {
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const token = tokenMeta ? tokenMeta.getAttribute('content') : '';
+
+            // Micro-loader on button
+            let originalSvg = null;
+            if (btnElement) {
+                originalSvg = btnElement.querySelector('svg');
+                if (originalSvg) originalSvg.classList.add('animate-pulse');
+            }
+
             try {
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 const response = await fetch("{{ route('wishlist.toggle') }}", {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': token,
@@ -408,22 +544,12 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    showToast(data.message, 'success');
-                    
-                    // Update header wishlist badge
-                    const badge = document.getElementById('nav-wishlist-count');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        if (data.count > 0) {
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-                    }
+                    showToast(data.message, 'success', "{{ route('wishlist.index') }}", 'View Wishlist');
+                    updateWishlistBadges(data.count);
 
-                    // Update button styling
-                    if (btnElement) {
-                        const svg = btnElement.querySelector('svg');
+                    // Update all buttons on page for this product
+                    document.querySelectorAll(`[data-wishlist-id="${productId}"]`).forEach(btn => {
+                        const svg = btn.querySelector('svg');
                         if (svg) {
                             if (data.added) {
                                 svg.setAttribute('fill', '#B31B1B');
@@ -433,19 +559,57 @@
                                 svg.setAttribute('stroke', 'currentColor');
                             }
                         }
+                    });
+
+                    // If on wishlist page and item un-hearted, remove the card dynamically
+                    if (!data.added) {
+                        const cardWrapper = document.querySelector(`.wishlist-card-wrapper[data-card-product-id="${productId}"]`);
+                        if (cardWrapper) {
+                            cardWrapper.style.opacity = '0';
+                            cardWrapper.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                cardWrapper.remove();
+                                const remaining = document.querySelectorAll('.wishlist-card-wrapper');
+                                if (remaining.length === 0) {
+                                    const grid = document.getElementById('wishlist-grid');
+                                    const emptyView = document.getElementById('wishlist-empty');
+                                    if (grid) grid.classList.add('hidden');
+                                    if (emptyView) emptyView.classList.remove('hidden');
+                                }
+                            }, 300);
+                        }
                     }
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Wishlist error:', err);
+                showToast('Unable to update wishlist. Please try again.', 'error');
+            } finally {
+                if (originalSvg) originalSvg.classList.remove('animate-pulse');
             }
         };
 
         // Quick AJAX Add to Cart
-        window.quickAddToCart = async function(productId, qty = 1) {
+        window.quickAddToCart = async function(productId, qty = 1, btnElement = null) {
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const token = tokenMeta ? tokenMeta.getAttribute('content') : '';
+
+            let origContent = null;
+            if (btnElement) {
+                origContent = btnElement.innerHTML;
+                btnElement.disabled = true;
+                btnElement.innerHTML = `
+                    <svg class="animate-spin w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Adding...</span>
+                `;
+            }
+
             try {
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 const response = await fetch("{{ route('cart.add') }}", {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': token,
@@ -456,14 +620,19 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    showToast(data.message, 'success');
-                    const badge = document.getElementById('nav-cart-count');
-                    if (badge) {
-                        badge.textContent = data.cartCount;
-                    }
+                    showToast(data.message, 'success', "{{ route('cart.index') }}", 'View Bag');
+                    updateCartBadges(data.cartCount);
+                } else {
+                    showToast('Could not add item to cart.', 'error');
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Cart error:', err);
+                showToast('Unable to add item to bag. Please try again.', 'error');
+            } finally {
+                if (btnElement && origContent !== null) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = origContent;
+                }
             }
         };
     </script>

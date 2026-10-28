@@ -11,7 +11,7 @@
             <p class="text-xs sm:text-sm text-[#7A6E68] mt-1">Authentic handloom creations and handcrafted Assamese ornaments</p>
         </div>
 
-        @if(!empty($items))
+        <div id="cart-content-wrapper" class="{{ !empty($items) ? '' : 'hidden' }}">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
                 <!-- Cart Items List (8 cols) -->
@@ -25,24 +25,26 @@
                     @endphp
                     <div class="bg-white p-4 rounded-2xl border border-[#EFE8DC] shadow-xs">
                         <div class="flex items-center justify-between text-xs font-semibold mb-2">
-                            @if($amountLeft > 0)
-                                <span class="text-[#4A3E38]">Add <strong class="text-[#B31B1B]">₹{{ number_format($amountLeft, 0) }}</strong> more for <strong>FREE Pan-India Insured Delivery</strong></span>
-                            @else
-                                <span class="text-emerald-700 font-bold flex items-center gap-1.5">
-                                    <span>🎉</span> You have unlocked FREE Pan-India Insured Delivery!
-                                </span>
-                            @endif
-                            <span class="text-[#9B7616]">{{ (int)$percent }}%</span>
+                            <span id="free-shipping-text" class="text-[#4A3E38]">
+                                @if($amountLeft > 0)
+                                    Add <strong class="text-[#B31B1B]">₹{{ number_format($amountLeft, 0) }}</strong> more for <strong>FREE Pan-India Insured Delivery</strong>
+                                @else
+                                    <span class="text-emerald-700 font-bold flex items-center gap-1.5">
+                                        <span>🎉</span> You have unlocked FREE Pan-India Insured Delivery!
+                                    </span>
+                                @endif
+                            </span>
+                            <span id="free-shipping-percent" class="text-[#9B7616]">{{ (int)$percent }}%</span>
                         </div>
                         <div class="w-full h-2 bg-[#F4ECE1] rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-[#D4AF37] to-[#B31B1B] rounded-full transition-all duration-500" style="width: {{ $percent }}%"></div>
+                            <div id="free-shipping-bar" class="h-full bg-gradient-to-r from-[#D4AF37] to-[#B31B1B] rounded-full transition-all duration-500" style="width: {{ $percent }}%"></div>
                         </div>
                     </div>
 
                     <!-- Items Table -->
-                    <div class="bg-white rounded-2xl border border-[#EFE8DC] overflow-hidden shadow-xs divide-y divide-[#EFE8DC]">
+                    <div id="cart-items-container" class="bg-white rounded-2xl border border-[#EFE8DC] overflow-hidden shadow-xs divide-y divide-[#EFE8DC]">
                         @foreach($items as $item)
-                            <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div id="cart-item-{{ $item['id'] }}" class="cart-row p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300">
                                 <div class="flex items-center gap-4">
                                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[#F4ECE1] flex-shrink-0 border border-[#EFE8DC]">
                                         <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
@@ -64,30 +66,24 @@
                                 </div>
 
                                 <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-                                    <!-- Quantity Update Form -->
-                                    <form action="{{ route('cart.update') }}" method="POST" class="flex items-center border border-[#E0D3C1] rounded-lg bg-[#FAF7F2] overflow-hidden">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $item['id'] }}">
-                                        <button type="submit" name="quantity" value="{{ $item['quantity'] - 1 }}" class="px-2.5 py-1 text-gray-600 hover:bg-[#F4ECE1]">-</button>
-                                        <span class="px-3 text-xs font-bold">{{ $item['quantity'] }}</span>
-                                        <button type="submit" name="quantity" value="{{ $item['quantity'] + 1 }}" class="px-2.5 py-1 text-gray-600 hover:bg-[#F4ECE1]">+</button>
-                                    </form>
+                                    <!-- Quantity Update Buttons -->
+                                    <div class="flex items-center border border-[#E0D3C1] rounded-lg bg-[#FAF7F2] overflow-hidden">
+                                        <button type="button" onclick="handleQtyChange({{ $item['id'] }}, -1, this)" class="px-2.5 py-1 text-gray-600 hover:bg-[#F4ECE1] transition cursor-pointer font-bold">-</button>
+                                        <span id="item-qty-{{ $item['id'] }}" data-qty="{{ $item['quantity'] }}" data-price="{{ $item['price'] }}" class="px-3 text-xs font-bold">{{ $item['quantity'] }}</span>
+                                        <button type="button" onclick="handleQtyChange({{ $item['id'] }}, 1, this)" class="px-2.5 py-1 text-gray-600 hover:bg-[#F4ECE1] transition cursor-pointer font-bold">+</button>
+                                    </div>
 
                                     <!-- Subtotal -->
                                     <div class="text-right min-w-[90px]">
-                                        <span class="block text-sm font-bold text-[#1E0C0E] font-royal">
+                                        <span id="item-subtotal-{{ $item['id'] }}" class="block text-sm font-bold text-[#1E0C0E] font-royal">
                                             ₹{{ number_format($item['subtotal'], 0) }}
                                         </span>
                                     </div>
 
                                     <!-- Remove Button -->
-                                    <form action="{{ route('cart.remove', $item['id']) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-gray-400 hover:text-[#B31B1B] transition p-1" title="Remove item">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="handleRemoveItem({{ $item['id'] }}, this)" class="text-gray-400 hover:text-[#B31B1B] transition p-1 cursor-pointer" title="Remove item">
+                                        <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
@@ -148,7 +144,7 @@
                                 <form action="{{ route('cart.coupon') }}" method="POST" class="flex gap-2">
                                     @csrf
                                     <input type="text" name="code" placeholder="Promo code (e.g. BIHU2026)" class="w-full text-xs bg-[#FAF7F2] border border-[#E0D3C1] rounded-xl px-3 py-2 uppercase font-medium focus:outline-none focus:border-[#C59B27]">
-                                    <button type="submit" class="px-4 py-2 bg-[#1E0C0E] hover:bg-[#B31B1B] text-white text-xs font-semibold rounded-xl transition">Apply</button>
+                                    <button type="submit" class="px-4 py-2 bg-[#1E0C0E] hover:bg-[#B31B1B] text-white text-xs font-semibold rounded-xl transition cursor-pointer">Apply</button>
                                 </form>
                                 <p class="text-[10px] text-gray-400 mt-1.5">Tip: Try promo code <strong>BIHU2026</strong> for 10% off.</p>
                             @endif
@@ -158,13 +154,13 @@
                         <div class="space-y-3 text-xs text-[#4A3E38] pt-2">
                             <div class="flex items-center justify-between">
                                 <span>Bag Subtotal:</span>
-                                <span class="font-bold font-royal text-[#1E0C0E]">₹{{ number_format($subtotal, 0) }}</span>
+                                <span id="cart-summary-subtotal" class="font-bold font-royal text-[#1E0C0E]">₹{{ number_format($subtotal, 0) }}</span>
                             </div>
 
                             @if($discount > 0)
-                                <div class="flex items-center justify-between text-[#B31B1B]">
+                                <div id="cart-summary-discount-row" class="flex items-center justify-between text-[#B31B1B]">
                                     <span>Bihu Privilege Discount ({{ $coupon['percent'] ?? 10 }}%):</span>
-                                    <span class="font-bold">-₹{{ number_format($discount, 0) }}</span>
+                                    <span id="cart-summary-discount" class="font-bold">-₹{{ number_format($discount, 0) }}</span>
                                 </div>
                             @endif
 
@@ -177,7 +173,7 @@
 
                             <div class="flex items-center justify-between">
                                 <span>Pan-India Insured Shipping:</span>
-                                <span>
+                                <span id="cart-summary-shipping">
                                     @if($shipping == 0)
                                         <strong class="text-emerald-700 uppercase font-bold">FREE</strong>
                                     @else
@@ -188,12 +184,12 @@
 
                             <div class="pt-4 border-t border-[#EFE8DC] flex items-center justify-between text-base">
                                 <span class="font-royal font-bold text-[#1E0C0E]">Grand Total:</span>
-                                <span class="font-royal font-bold text-xl text-[#B31B1B]">₹{{ number_format($total, 0) }}</span>
+                                <span id="cart-summary-total" class="font-royal font-bold text-xl text-[#B31B1B]">₹{{ number_format($total, 0) }}</span>
                             </div>
                         </div>
 
                         <!-- Proceed to Checkout Button -->
-                        <a href="{{ route('checkout.index') }}" class="w-full py-4 rounded-xl bg-[#D72638] hover:bg-[#B31B1B] text-white text-xs font-bold uppercase tracking-wider transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <a href="{{ route('checkout.index') }}" class="w-full py-4 rounded-xl bg-[#D72638] hover:bg-[#B31B1B] text-white text-xs font-bold uppercase tracking-wider transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer">
                             <span>Proceed to Secure Checkout</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>
@@ -207,21 +203,144 @@
                 </div>
 
             </div>
-        @else
-            <!-- Empty Cart -->
-            <div class="bg-white rounded-3xl p-12 lg:p-16 text-center border border-[#EFE8DC] max-w-xl mx-auto shadow-xs">
-                <img src="{{ asset('images/motifs/jaapi.svg') }}" alt="Empty Cart" class="w-20 h-20 mx-auto mb-4 opacity-50">
-                <h2 class="font-royal text-2xl font-bold text-[#1E0C0E]">Your Heritage Bag is Empty</h2>
-                <p class="text-xs sm:text-sm text-[#7A6E68] mt-2 mb-6">
-                    You haven’t added any handcrafted Assamese Mekhela Sador or Bihu jewellery yet.
-                </p>
-                <a href="{{ route('shop') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs font-bold uppercase tracking-wider transition shadow-md">
-                    <span>Explore Handloom Collections</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </a>
-            </div>
-        @endif
+        </div>
+
+        <!-- Empty Cart -->
+        <div id="cart-empty-view" class="bg-white rounded-3xl p-12 lg:p-16 text-center border border-[#EFE8DC] max-w-xl mx-auto shadow-xs {{ empty($items) ? '' : 'hidden' }}">
+            <img src="{{ asset('images/motifs/jaapi.svg') }}" alt="Empty Cart" class="w-20 h-20 mx-auto mb-4 opacity-50">
+            <h2 class="font-royal text-2xl font-bold text-[#1E0C0E]">Your Heritage Bag is Empty</h2>
+            <p class="text-xs sm:text-sm text-[#7A6E68] mt-2 mb-6">
+                You haven’t added any handcrafted Assamese Mekhela Sador or Bihu jewellery yet.
+            </p>
+            <a href="{{ route('shop') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs font-bold uppercase tracking-wider transition shadow-md">
+                <span>Explore Handloom Collections</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
 
     </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    async function handleQtyChange(productId, delta, btn) {
+        const qtyEl = document.getElementById('item-qty-' + productId);
+        if (!qtyEl) return;
+        const currentQty = parseInt(qtyEl.getAttribute('data-qty') || 1);
+        const newQty = currentQty + delta;
+        const price = parseFloat(qtyEl.getAttribute('data-price') || 0);
+
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        try {
+            const res = await fetch("{{ route('cart.update') }}", {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ product_id: productId, quantity: newQty })
+            });
+            const data = await res.json();
+            if (data.success) {
+                updateCartBadges(data.cartCount);
+
+                if (newQty <= 0) {
+                    const row = document.getElementById('cart-item-' + productId);
+                    if (row) {
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            if (document.querySelectorAll('.cart-row').length === 0) {
+                                document.getElementById('cart-content-wrapper').classList.add('hidden');
+                                document.getElementById('cart-empty-view').classList.remove('hidden');
+                            }
+                        }, 250);
+                    }
+                } else {
+                    qtyEl.textContent = newQty;
+                    qtyEl.setAttribute('data-qty', newQty);
+                    const subtotalEl = document.getElementById('item-subtotal-' + productId);
+                    if (subtotalEl) {
+                        subtotalEl.textContent = '₹' + Math.round(price * newQty).toLocaleString('en-IN');
+                    }
+                }
+
+                // Update Summary
+                updateCartSummary(data);
+            }
+        } catch (err) {
+            console.error('Cart update error:', err);
+        }
+    }
+
+    async function handleRemoveItem(productId, btn) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        try {
+            const res = await fetch("{{ url('/cart/remove') }}/" + productId, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                updateCartBadges(data.cartCount);
+                const row = document.getElementById('cart-item-' + productId);
+                if (row) {
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        if (document.querySelectorAll('.cart-row').length === 0) {
+                            document.getElementById('cart-content-wrapper').classList.add('hidden');
+                            document.getElementById('cart-empty-view').classList.remove('hidden');
+                        }
+                    }, 250);
+                }
+                updateCartSummary(data);
+                showToast(data.message, 'info');
+            }
+        } catch (err) {
+            console.error('Remove error:', err);
+        }
+    }
+
+    function updateCartSummary(data) {
+        const subtotalEl = document.getElementById('cart-summary-subtotal');
+        const totalEl = document.getElementById('cart-summary-total');
+        const shippingEl = document.getElementById('cart-summary-shipping');
+        const discountEl = document.getElementById('cart-summary-discount');
+        const freeText = document.getElementById('free-shipping-text');
+        const freeBar = document.getElementById('free-shipping-bar');
+        const freePercent = document.getElementById('free-shipping-percent');
+
+        if (subtotalEl) subtotalEl.textContent = '₹' + Math.round(data.subtotal).toLocaleString('en-IN');
+        if (totalEl) totalEl.textContent = '₹' + Math.round(data.total).toLocaleString('en-IN');
+        if (discountEl && data.discount > 0) {
+            discountEl.textContent = '-₹' + Math.round(data.discount).toLocaleString('en-IN');
+        }
+        if (shippingEl) {
+            shippingEl.innerHTML = data.shipping === 0 ? '<strong class="text-emerald-700 uppercase font-bold">FREE</strong>' : '₹' + Math.round(data.shipping);
+        }
+
+        // Free shipping progress calculation (threshold = 5000)
+        const left = Math.max(0, 5000 - data.subtotal);
+        const percent = Math.min(100, Math.round((data.subtotal / 5000) * 100));
+        if (freeText) {
+            if (left > 0) {
+                freeText.innerHTML = `Add <strong class="text-[#B31B1B]">₹${left.toLocaleString('en-IN')}</strong> more for <strong>FREE Pan-India Insured Delivery</strong>`;
+            } else {
+                freeText.innerHTML = `<span class="text-emerald-700 font-bold flex items-center gap-1.5"><span>🎉</span> You have unlocked FREE Pan-India Insured Delivery!</span>`;
+            }
+        }
+        if (freeBar) freeBar.style.width = percent + '%';
+        if (freePercent) freePercent.textContent = percent + '%';
+    }
+</script>
+@endpush

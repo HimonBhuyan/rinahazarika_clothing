@@ -50,6 +50,10 @@ class CartController extends Controller
 
         $this->cart->add($product, $quantity);
 
+        if ($request->boolean('buy_now')) {
+            return redirect()->route('checkout.index');
+        }
+
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -90,9 +94,22 @@ class CartController extends Controller
         return redirect()->route('cart.index')->with('success', 'Cart updated successfully.');
     }
 
-    public function remove(int $id): RedirectResponse
+    public function remove(Request $request, int $id): RedirectResponse|JsonResponse
     {
         $this->cart->remove($id);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'cartCount' => $this->cart->getCount(),
+                'subtotal' => $this->cart->getSubtotal(),
+                'discount' => $this->cart->getDiscountAmount(),
+                'shipping' => $this->cart->getShippingCost(),
+                'giftWrap' => $this->cart->getGiftWrapCost(),
+                'total' => $this->cart->getTotal(),
+                'message' => 'Item removed from your cart.',
+            ]);
+        }
 
         return redirect()->route('cart.index')->with('success', 'Item removed from your cart.');
     }

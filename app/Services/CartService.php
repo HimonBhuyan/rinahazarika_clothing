@@ -14,61 +14,93 @@ class CartService
     private const GIFT_WRAP_KEY = 'assamese_gift_wrap';
 
     /**
-     * @return array<int, array{id: int, name: string, slug: string, price: float, quantity: int, image: string, material: string, motif: ?string, subtotal: float}>
+     * @return array<int, array{id: int, name: string, assamese_name: ?string, slug: string, price: float, quantity: int, image: string, material: string, motif: ?string, subtotal: float}>
      */
     public function getItems(): array
     {
-        return Session::get(self::SESSION_KEY, []);
+        $raw = Session::get(self::SESSION_KEY, []);
+        if (empty($raw)) {
+            return [];
+        }
+
+        // Backwards compatibility if stored as full array
+        $first = reset($raw);
+        if (is_array($first) && isset($first['name'])) {
+            return $raw;
+        }
+
+        $productIds = array_keys($raw);
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $hydrated = [];
+
+        foreach ($raw as $id => $quantity) {
+            $qty = is_array($quantity) ? ($quantity['quantity'] ?? 1) : (int) $quantity;
+            $productId = (int) $id;
+            if (isset($products[$productId])) {
+                $product = $products[$productId];
+                $hydrated[$productId] = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'assamese_name' => $product->assamese_name,
+                    'slug' => $product->slug,
+                    'price' => (float) $product->price,
+                    'quantity' => $qty,
+                    'image' => $product->primary_image,
+                    'material' => $product->material_type,
+                    'motif' => $product->motif,
+                    'subtotal' => (float) ($product->price * $qty),
+                ];
+            }
+        }
+
+        return $hydrated;
     }
 
     public function add(Product $product, int $quantity = 1): void
     {
-        $items = $this->getItems();
-        $id = $product->id;
-
-        if (isset($items[$id])) {
-            $items[$id]['quantity'] += $quantity;
-            $items[$id]['subtotal'] = $items[$id]['quantity'] * $items[$id]['price'];
-        } else {
-            $items[$id] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'assamese_name' => $product->assamese_name,
-                'slug' => $product->slug,
-                'price' => (float) $product->price,
-                'quantity' => $quantity,
-                'image' => $product->primary_image,
-                'material' => $product->material_type,
-                'motif' => $product->motif,
-                'subtotal' => (float) ($product->price * $quantity),
-            ];
+        $raw = Session::get(self::SESSION_KEY, []);
+        $quantities = [];
+        foreach ($raw as $key => $val) {
+            $quantities[(int) $key] = is_array($val) ? ($val['quantity'] ?? 1) : (int) $val;
         }
 
-        Session::put(self::SESSION_KEY, $items);
+        $id = $product->id;
+        if (isset($quantities[$id])) {
+            $quantities[$id] += $quantity;
+        } else {
+            $quantities[$id] = $quantity;
+        }
+
+        Session::put(self::SESSION_KEY, $quantities);
     }
 
     public function update(int $productId, int $quantity): void
     {
-        $items = $this->getItems();
-
-        if (isset($items[$productId])) {
-            if ($quantity <= 0) {
-                unset($items[$productId]);
-            } else {
-                $items[$productId]['quantity'] = $quantity;
-                $items[$productId]['subtotal'] = (float) ($items[$productId]['price'] * $quantity);
-            }
-            Session::put(self::SESSION_KEY, $items);
+        $raw = Session::get(self::SESSION_KEY, []);
+        $quantities = [];
+        foreach ($raw as $key => $val) {
+            $quantities[(int) $key] = is_array($val) ? ($val['quantity'] ?? 1) : (int) $val;
         }
+
+        if ($quantity <= 0) {
+            unset($quantities[$productId]);
+        } else {
+            $quantities[$productId] = $quantity;
+        }
+
+        Session::put(self::SESSION_KEY, $quantities);
     }
 
     public function remove(int $productId): void
     {
-        $items = $this->getItems();
-        if (isset($items[$productId])) {
-            unset($items[$productId]);
-            Session::put(self::SESSION_KEY, $items);
+        $raw = Session::get(self::SESSION_KEY, []);
+        $quantities = [];
+        foreach ($raw as $key => $val) {
+            $quantities[(int) $key] = is_array($val) ? ($val['quantity'] ?? 1) : (int) $val;
         }
+
+        unset($quantities[$productId]);
+        Session::put(self::SESSION_KEY, $quantities);
     }
 
     public function clear(): void

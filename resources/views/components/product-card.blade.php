@@ -32,10 +32,11 @@
 
         <!-- Wishlist Floating Button -->
         <button type="button" 
-                onclick="toggleWishlist({{ $product->id }}, this)" 
-                class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-[#B31B1B] shadow-md flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
-                title="Add to Wishlist">
-            <svg class="w-4 h-4" fill="{{ $isInWishlist ? '#B31B1B' : 'none' }}" stroke="{{ $isInWishlist ? '#B31B1B' : 'currentColor' }}" viewBox="0 0 24 24">
+                onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }}, this)" 
+                class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/95 hover:bg-white text-gray-700 hover:text-[#B31B1B] shadow-md flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+                title="Add to Wishlist"
+                data-wishlist-id="{{ $product->id }}">
+            <svg class="w-4 h-4 pointer-events-none" fill="{{ $isInWishlist ? '#B31B1B' : 'none' }}" stroke="{{ $isInWishlist ? '#B31B1B' : 'currentColor' }}" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
             </svg>
         </button>
@@ -107,8 +108,8 @@
 
             <!-- Quick Add to Cart Button -->
             <button type="button" 
-                    onclick="quickAddToCart({{ $product->id }}, 1)" 
-                    class="px-3 py-1.5 rounded-lg bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs font-semibold tracking-wide transition shadow-xs flex items-center gap-1.5 active:scale-95">
+                    onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart({{ $product->id }}, 1, this)" 
+                    class="px-3 py-1.5 rounded-lg bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs font-semibold tracking-wide transition shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Add</span>
             </button>

@@ -153,30 +153,36 @@
                     </div>
 
                     <!-- Add to Cart & Buy Form -->
-                    <form action="{{ route('cart.add') }}" method="POST" class="space-y-4">
+                    <form action="{{ route('cart.add') }}" method="POST" class="space-y-3">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         
-                        <div class="flex items-center gap-2.5 sm:gap-4 flex-wrap sm:flex-nowrap">
+                        <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap">
                             <!-- Quantity Selector -->
                             <div class="flex items-center border border-[#E0D3C1] rounded-xl bg-white overflow-hidden flex-shrink-0">
-                                <button type="button" onclick="decreaseQty()" class="px-3 py-2.5 sm:px-3.5 text-gray-600 hover:bg-[#F4ECE1] transition">-</button>
+                                <button type="button" onclick="decreaseQty()" class="px-3 py-2.5 sm:px-3.5 text-gray-600 hover:bg-[#F4ECE1] transition cursor-pointer font-bold">-</button>
                                 <input type="number" id="qty-input" name="quantity" value="1" min="1" max="10" class="w-10 sm:w-12 text-center text-xs font-bold border-none focus:outline-none">
-                                <button type="button" onclick="increaseQty()" class="px-3 py-2.5 sm:px-3.5 text-gray-600 hover:bg-[#F4ECE1] transition">+</button>
+                                <button type="button" onclick="increaseQty()" class="px-3 py-2.5 sm:px-3.5 text-gray-600 hover:bg-[#F4ECE1] transition cursor-pointer font-bold">+</button>
                             </div>
 
                             <!-- Add to Cart CTA -->
-                            <button type="submit" class="flex-1 min-w-[170px] py-3 sm:py-3.5 rounded-xl bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs sm:text-sm font-semibold uppercase tracking-wider transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <button type="submit" class="flex-1 min-w-[150px] py-3 sm:py-3.5 rounded-xl bg-[#1E0C0E] hover:bg-[#B31B1B] text-[#F5E5B4] text-xs sm:text-sm font-semibold uppercase tracking-wider transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer">
                                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                                <span>Add to Heritage Cart</span>
+                                <span>Add to Cart</span>
+                            </button>
+
+                            <!-- Buy Now CTA -->
+                            <button type="submit" name="buy_now" value="1" class="flex-1 min-w-[140px] py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C59B27] hover:from-[#C59B27] hover:to-[#9B7616] text-[#1E0C0E] font-bold text-xs sm:text-sm uppercase tracking-wider transition shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 cursor-pointer">
+                                <span>⚡ Buy Now</span>
                             </button>
 
                             <!-- Wishlist Toggle -->
                             <button type="button" 
-                                    onclick="toggleWishlist({{ $product->id }}, this)" 
-                                    class="p-3 sm:p-3.5 rounded-xl border border-[#E0D3C1] bg-white hover:bg-[#FFF1F1] text-gray-700 hover:text-[#B31B1B] transition shadow-xs flex-shrink-0" 
-                                    title="Save to Wishlist">
-                                <svg class="w-5 h-5" fill="{{ $isInWishlist ? '#B31B1B' : 'none' }}" stroke="{{ $isInWishlist ? '#B31B1B' : 'currentColor' }}" viewBox="0 0 24 24">
+                                    onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }}, this)" 
+                                    class="p-3 sm:p-3.5 rounded-xl border border-[#E0D3C1] bg-white hover:bg-[#FFF1F1] text-gray-700 hover:text-[#B31B1B] transition shadow-xs flex-shrink-0 cursor-pointer" 
+                                    title="Save to Wishlist"
+                                    data-wishlist-id="{{ $product->id }}">
+                                <svg class="w-5 h-5 pointer-events-none" fill="{{ $isInWishlist ? '#B31B1B' : 'none' }}" stroke="{{ $isInWishlist ? '#B31B1B' : 'currentColor' }}" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                 </svg>
                             </button>
