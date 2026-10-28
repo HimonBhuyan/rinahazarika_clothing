@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Assamese Jaapi: Traditional conical wicker hat with decorative red/green cloth patches -->
+  <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Conical Dome -->
+    <path d="M60 18 L18 88 C18 88 38 98 60 98 C82 98 102 88 102 88 L60 18 Z" fill="currentColor" fill-opacity="0.12" stroke-width="2.5" />
+    <!-- Center Kalash Finial with Peacock Tuft -->
+    <path d="M58 18 L60 8 L62 18 Z" fill="currentColor" />
+    <circle cx="60" cy="7" r="3" fill="currentColor" />
+    <path d="M60 4 C57 1 63 1 60 4" stroke-width="1.5" />
+    <!-- Decorative Triangular Petals (Red/Green Phool Patches) -->
+    <path d="M60 38 L48 60 L72 60 Z" fill="currentColor" fill-opacity="0.3" />
+    <path d="M36 68 L24 86 L48 86 Z" fill="currentColor" fill-opacity="0.25" />
+    <path d="M84 68 L72 86 L96 86 Z" fill="currentColor" fill-opacity="0.25" />
+    <path d="M60 66 L48 88 L72 88 Z" fill="currentColor" fill-opacity="0.35" />
+    <!-- Woven radiating bamboo ribs -->
+    <line x1="60" y1="18" x2="32" y2="92" stroke-width="1.2" stroke-dasharray="3 2" />
+    <line x1="60" y1="18" x2="46" y2="96" stroke-width="1.2" stroke-dasharray="3 2" />
+    <line x1="60" y1="18" x2="60" y2="98" stroke-width="1.2" />
+    <line x1="60" y1="18" x2="74" y2="96" stroke-width="1.2" stroke-dasharray="3 2" />
+    <line x1="60" y1="18" x2="88" y2="92" stroke-width="1.2" stroke-dasharray="3 2" />
+    <!-- Base Circular Rim Beads -->
+    <circle cx="28" cy="90" r="2.5" fill="currentColor" />
+    <circle cx="44" cy="95" r="2.5" fill="currentColor" />
+    <circle cx="60" cy="97" r="3" fill="currentColor" />
+    <circle cx="76" cy="95" r="2.5" fill="currentColor" />
+    <circle cx="92" cy="90" r="2.5" fill="currentColor" />
+  </g>
+</svg>
